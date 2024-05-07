@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 556.5 68.4" enable-background="new 0 0 556.5 68.4" xml:space="preserve">
+<pattern  x="-681.1" y="-505.8" width="72" height="72" patternUnits="userSpaceOnUse" id="New_Pattern_Swatch_2" viewBox="0 -72 72 72" overflow="visible">
+	<g>
+		<rect x="0" y="-72" fill="none" width="72" height="72"/>
+		<polygon fill="#EA6217" points="0,-72 0,-63 9,-72 		"/>
+		<polygon fill="#EA6217" points="0,-54 18,-72 27,-72 0,-45 		"/>
+		<polygon fill="#EA6217" points="0,-36 36,-72 45,-72 0,-27 		"/>
+		<polygon fill="#EA6217" points="0,-9 0,-18 54,-72 63,-72 		"/>
+		<polygon fill="#EA6217" points="0,0 72,-72 72,-63 9,0 		"/>
+		<polygon fill="#EA6217" points="18,0 72,-54 72,-45 27,0 		"/>
+		<polygon fill="#EA6217" points="36,0 72,-36 72,-27 45,0 		"/>
+		<polygon fill="#EA6217" points="54,0 72,-18 72,-9 63,0 		"/>
+	</g>
+</pattern>
+<polygon fill="url(#New_Pattern_Swatch_2)" points="16.9,14.5 206.3,65.8 539.6,53.2 341.3,2.5 "/>
+</svg>

@@ -1,0 +1,247 @@
+  
+var formElement = document.querySelector("#transfer");
+var formData = new FormData(formElement);
+var fileNum = 0;
+var files;
+
+$( ".progress" ).hide();
+
+//$('input.emailTo').floatlabel();
+
+
+/////////////////////////////////////
+/////////DRAG DROP TRUCK 1///////////
+/////////////////////////////////////
+
+(function (window) {
+    function triggerCallback(e, callback) {
+        if (!callback || typeof callback !== 'function') {
+            return;
+        }
+
+        if (e.dataTransfer) {
+            files = e.dataTransfer.files;
+        } else if (e.target) {
+            files = e.target.files;
+        }
+        callback.call(null, files);
+    }
+    function makeDroppable(truck, ele, callback) {
+        var input = document.createElement('input');
+        input.setAttribute('type', 'file');
+        input.setAttribute('multiple', true);
+        input.style.display = 'none';
+        input.addEventListener('change', function (e) {
+            triggerCallback(e, callback);
+        });
+        ele.appendChild(input);
+
+        ele.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            //ele.classList.remove('cargo1lines');
+            if(truck==1) {
+                ele.classList.add('cargo1linesDrag');
+            } else if(truck==2) {
+                ele.classList.add('cargo2linesDrag');
+            } else if(truck==3) {
+                ele.classList.add('cargo3linesDrag');
+            } else if(truck==4) {
+                ele.classList.add('cargo4linesDrag');
+            }
+        });
+
+        ele.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            //ele.classList.remove('dragover');
+            
+            if(truck==1) {
+                ele.classList.remove('cargo1linesDrag');
+            } else if(truck==2) {
+                ele.classList.remove('cargo2linesDrag');
+            } else if(truck==3) {
+                ele.classList.remove('cargo3linesDrag');
+            } else if(truck==4) {
+                ele.classList.remove('cargo4linesDrag');
+            }
+            //ele.classList.add('cargo1lines');
+        });
+
+        ele.addEventListener('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+           
+            if(truck==1) {
+                 ele.classList.remove('cargo1linesDrag');
+            } else if(truck==2) {
+                 ele.classList.remove('cargo2linesDrag');
+            } else if(truck==3) {
+                 ele.classList.remove('cargo3linesDrag');
+            } else if(truck==4) {
+                 ele.classList.remove('cargo4linesDrag');
+            }
+            //ele.classList.add('cargo1lines');
+            //ele.classList.remove('dragover');
+            triggerCallback(e, callback);
+        });
+
+        ele.addEventListener('click', function () {
+            input.value = null;
+            input.click();
+        });
+    }
+    window.makeDroppable = makeDroppable;
+})(this);
+(function (window) {
+    //TRUCK 
+    makeDroppable(trucknum, window.document.querySelector('.droppable'), function (files) {
+        console.log(files);
+
+        for (var i = 0; i < files.length; i++) {
+            fileNum++;
+            formData.append("files[" + fileNum + "]", files[i]);
+
+            $(".fileList").append('<div class="listItem" id="file' + fileNum + '"><div class="fileName">' + files[i].name + '<br><span id="fileSize">' + bytesToSize(files[i].size) + '</span></div><div class="closeX"><a onclick="removeFiles(\'' + fileNum + '\');">X</a></div></div>');
+            $( "#files-error" ).hide();
+
+            $('.form').show();
+            $('.fileListModule').show();
+            $('special').show();
+
+        }
+    });
+    
+})(this);
+
+function sendFiles() {
+
+     var filesExist = 0;
+     for(var pair of formData.entries()) {
+    	if (pair[0].indexOf("files[") >= 0) {
+            filesExist = 1;
+        }
+     }
+
+     if(filesExist == 0){
+        $( "#files-error" ).show();
+     }
+
+     if($("#transfer").valid() && filesExist == 1) {
+
+    	formData.delete('emailFrom');
+        formData.delete('emailTo');
+        formData.delete('message');
+        formData.delete('fileSubmit');
+
+        formData.append('emailFrom', $('#emailFrom').val());
+        formData.append('emailTo', $('#emailTo').val());
+        formData.append('message', $('#message').val());
+        formData.append('fileSubmit', 'fileTransfer');
+
+        // Display the key/value pairs
+        for (var pair of formData.entries())
+        {
+        console.log(pair[0]+ ', '+ pair[1]); 
+        }
+
+        //return false;
+        $('#sendBtn').attr('disabled', 'disabled');
+        $('#emailTo').attr('disabled', 'disabled');
+        $('#emailFrom').attr('disabled', 'disabled');
+        $('#message').attr('disabled', 'disabled');
+        $( ".progress" ).show();
+        $( "#sendBtn" ).hide();
+        // $('.msg').text('Subiendo achivos...')
+        $.ajax({
+            url: '/index.php/transfer/send',
+            method: 'post',
+            data: formData,
+            processData: false,
+            contentType: false,
+            xhr: function () {
+                                var xhr = new window.XMLHttpRequest();
+                                xhr.upload.addEventListener("progress", function (evt) {
+                                    if (evt.lengthComputable) {
+                                        var percentComplete = evt.loaded / evt.total;
+                                        percentComplete = parseInt(percentComplete * 100);
+                                        $('.myprogress').text(percentComplete + '%');
+                                        if(percentComplete > 99) {
+                                            $('.myprogress').text('¡Listo!');
+                                            $('#lightboxFilesOnWay').show();
+                                        }
+                                        $('.myprogress').css('width', percentComplete + '%');
+                                    }
+                                }, false);
+                                return xhr;
+                            },
+            success: function (response) {
+                //alert('Files uploaded successfully.');
+            // alert(JSON.stringify(response));
+                console.log(JSON.stringify(response));
+
+            }
+        });
+
+        return false;
+     }
+}
+
+function removeFiles(number) {
+
+    $("#file" + number).remove();
+    //formData.append("files["+number+"]", null);
+    formData.delete("files[" + number + "]");
+    
+}
+
+function bytesToSize(bytes) {
+    var sizes = ['b', 'kb', 'mb', 'gb', 'tb', 'pb'];
+    for (var i = 0; i < sizes.length; i++) {
+        if (bytes <= 1024) {
+            return bytes + ' ' + sizes[i];
+        } else {
+            bytes = parseFloat(bytes / 1024).toFixed(2)
+        }
+    }
+    return bytes + ' P';
+}
+
+function downloadFile(file, token, e) {
+    e.preventDefault(); // stop the browser from following
+    window.location.href = '../../transfer/get_file/'+file+'/'+token;
+}
+
+function downloadFiles(token, e) {
+    e.preventDefault(); // stop the browser from following
+    window.location.href = '../../transfer/get_files_zip/'+token;
+}
+
+$(document).ready(function() {
+    $("#transfer").validate({
+        rules: {
+      // The key name on the left side is the name attribute
+      // of an input field. Validation rules are defined
+      // on the right side
+      emailTo: {
+        required: true,
+        // Specify that email should be validated
+        // by the built-in "email" rule
+        email: true
+      },
+      mailFrom: {
+        required: true,
+        // Specify that email should be validated
+        // by the built-in "email" rule
+        email: true
+      }
+    },
+    // Specify validation error messages
+    messages: {
+      emailTo: "Se requiere un email correcto.",
+      emailFrom: "Se requiere un email correcto."
+      
+    }
+    })
+
+});
