@@ -3,27 +3,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Transfer extends CI_Controller {
 
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see https://codeigniter.com/user_guide/general/urls.html
-	 */
-
 	  function  __construct() {
         parent::__construct();
-		 //$this->load->helper('url');
-        //$files_model = $this->load->model('files_model');
-		//$transfer_model = $this->load->model('transfer_model');
     }
     
     function send(){
@@ -38,12 +19,9 @@ class Transfer extends CI_Controller {
 			
 			$keys = array_keys($_FILES['files']['name']);
 			$filesCount = end($keys);
-            
-			
-		    //$filesCount = count($_FILES['files']['name']);
+
             for($i = 0; $i <= $filesCount; $i++){
 		
-
 				if(isset($_FILES['files']['name'][$i])) {
 					
 					$_FILES['file']['name'] = $_FILES['files']['name'][$i];
@@ -53,20 +31,13 @@ class Transfer extends CI_Controller {
                     $filesErrors = $filesErrors.$_FILES['files']['name'][$i].": ".$_FILES['files']['error'][$i]."<br />";
 					$_FILES['file']['size'] = $_FILES['files']['size'][$i];
 				
-					//echo "i:".$i." name:".$_FILES['file']['name']."<br />";
-				
 					$uploadPath = 'uploads/files/';
-					$config['file_name']  = bin2hex(random_bytes(16));//bin2hex(mcrypt_create_iv(22, MCRYPT_DEV_URANDOM));
+					$config['file_name']  = bin2hex(random_bytes(16));
 					$config['upload_path'] = $uploadPath;
 
 					$ext=preg_replace("/.*\.([^.]+)$/","\\1", $_FILES['file']['name']);
 					$fileType=$_FILES['file']['type'];
-					//$config['allowed_types'] = $ext;//.'|'.$fileType;
-                    $config['allowed_types'] = "*";//.'|'.$fileType;
-					//$config['allowed_types'] = 'gif|jpg|png|docx|xlsx|txt';
-                    
-                    //echo $config['allowed_types'];
-                    //exit();
+                    $config['allowed_types'] = "*";
 					
 					$this->load->library('upload', $config);
 					$this->upload->initialize($config);
@@ -81,12 +52,10 @@ class Transfer extends CI_Controller {
 						
 					}
 				}
-
-
             }
           
             if(!empty($uploadData)){
-                //Insert file information into the database
+                // Insert file information into the database
 				$this->load->model('transfer_model');
          		$identity = $this->transfer_model->insert(date("Y-m-d H:i:s"), $this->input->post('emailFrom'), $this->input->post('emailTo'), $this->input->post('message'), 0);
 				
@@ -137,10 +106,7 @@ class Transfer extends CI_Controller {
 				$this->email->to($this->input->post('emailFrom'));
 				$this->email->subject('Gracias por utilizar la Ford F-150');
 				$msg = $this->load->view('mail_sender', $mailData, true);
-				//$msg = "";
 				$this->email->message($msg);
-				//$this->email->attach('/path/to/file1.png'); // attach file
-				//$this->email->attach('/path/to/file2.pdf');
 				if ($this->email->send()) {
 					echo "Mail Sent!";
 					echo $this->email->print_debugger();
@@ -162,9 +128,7 @@ class Transfer extends CI_Controller {
 		$this->load->view('header_transfer');
 		$this->load->view('content_transfer');
 		$this->load->view('footer_transfer');
-		
 	}
-
 
 	public function download($token=null)
 	{
@@ -187,7 +151,6 @@ class Transfer extends CI_Controller {
 		
 	}
 
-
 	public function get_file($file, $token)
 	{
 		
@@ -198,19 +161,10 @@ class Transfer extends CI_Controller {
 		
 		if (isset($transfer->id)) {
 			$files_array = $this->files_model->get_by_file_trasnfer($file, $transfer->id);
-		
-			//print_r($files_array);
-			//die();
-			
-			//if(count($files_array) > 0) {
 
 				$path = 'uploads/files/'.$files_array->file; // the file made available for download via this PHP file
 				$name = $files_array->name;
 				$mm_type="application/octet-stream"; // modify accordingly to the file type of $path, but in most cases no need to do so
-
-				//echo $path.'<br />';
-				//echo $name;
-				//die();
 
 				header("Pragma: public");
 				header("Expires: 0");
@@ -231,9 +185,6 @@ class Transfer extends CI_Controller {
 
 	public function get_files_zip($token)
 	{
-		//echo dirname(__FILE__)."/../../uploads/files/zips/download.zip";
-		//die();
-		
 		$this->load->model('transfer_model');
 		$this->load->model('files_model');
 		
@@ -241,9 +192,7 @@ class Transfer extends CI_Controller {
 		
 		if (isset($transfer->id)) {
 			$files_array = $this->files_model->get_by_transfer($transfer->id);
-		
-			//print_r($files_array);
-			//die();
+
 			$timestamp = new DateTime();
 					
 			if(count($files_array) > 0) {
@@ -253,7 +202,6 @@ class Transfer extends CI_Controller {
 				$zip->open($download, ZipArchive::CREATE);
 				
 				foreach ($files_array as $item) {
-				//foreach (glob("images/*.png") as $file) { /* Add appropriate path to read content of zip */
 					$zip->addFile(dirname(__FILE__)."/../../uploads/files/".$item['file'], $item['name']); 
 				}
 
@@ -267,13 +215,8 @@ class Transfer extends CI_Controller {
 				}
 			}
 
-		
 		}
 		
 	}
-
-
-
-
 
 }
